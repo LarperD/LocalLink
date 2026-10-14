@@ -26,10 +26,10 @@ I'm a remote control hater cause' I just want to GAME !
 - Mini Screen
 - Mouse (Touchpad)
 - Keyboard (Shortcut Maker, Live Typeing)
-- Gamepad (Multi-Layout, LayoutEditor, Background Screen,Touch Background)
+- Gamepad (Multi Layout, Layout Editor, Background Screen,Touch Background)
 - PC (Input Passing) // PC to PC
 ### [🩵] Tested on :
-- _**Linux** : Arch linux + SwayWM // **Pipewire**_
+- _**Linux** : Arch Linux + SwayWM // **Pipewire**_
 - _**Windows** : Tiny 10 22H2_
 ### [‼️] Firewalls :
 - _Please allow `8765` by default for `tcp` port_
