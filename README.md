@@ -1,7 +1,7 @@
 
 
 <div align="center">
- # 🔷 LocalLink 🫐 | Remote Controller For Gamers
+ <h1>🔷 LocalLink 🫐 | Remote Controller For Gamers</h1> 
  Python 3.8 ++ | OpenSource Project | TUI Tools
 </div>
 
