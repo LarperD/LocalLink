@@ -6,7 +6,7 @@
 - Running Locally on Browsers
 - Fast input system
 
-note : The screen mirroring system wasn't make for real-use as the backend is too slow for gaming. // Disabling it will improve quite an input latency
+> **note** : The screen mirroring system wasn't make for real-use as the backend is too slow for gaming. // Disabling it will improve quite an input latency
 
 (I only add it for visualization.) 
 
