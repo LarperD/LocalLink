@@ -11,7 +11,7 @@
  - Turn your Devices into **Controllers** for pc gaming
  - Running Locally on Browsers
  - Fast input system
- - Comes with (useless) installer
+ - Comes with (useless) Launcher to help you install
 
 > [!NOTE]
 > The screen mirroring system wasn't make for real-use as the backend is too slow for gaming. // Disabling it will improve a lot of input latency (I only add it for visualization.)
