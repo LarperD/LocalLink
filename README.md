@@ -1,11 +1,12 @@
 
 # LocalLink
-- Turn your Devices into Controllers for pc gaming locally
+- Turn your Devices into **Controllers** for pc gaming locally
 - No client installation
 
 This is my very first vibe coding project.
-I'm a remote control apps hater, and I just want to GAME
+I'm a remote control apps hater, and I just want to GAME !
 
+LocalLink is unlike SteamLink. The purpose is to use your device as a "**Controller**".
 ## Tested on :
 - Arch linux + SwayWM
 ## ⚠️Firewalls :
