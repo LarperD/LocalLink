@@ -14,13 +14,13 @@
  - Comes with (useless) Launcher to help you install
 
 > [!NOTE]
-> The screen mirroring system wasn't make for real-use as the backend is too slow for gaming. // Disabling it will improve a lot of input latency (I only add it for visualization.)
+> The screen mirroring system wasn't make for real-use as the backend is too slow for gaming. // Disabling it will improve a lot of input latency (I only add it for visualization .)
 <br/>
 
 This is my very first **Vibe Coding** Project.
 I'm a remote control hater cause' I just want to GAME !
 
-**LocalLink** is **unlike SteamLink**. The purpose is to use your device as a "**Controller**" only.
+**LocalLink** is **unlike SteamLink**. The purpose is to use your device as a "**Controller**" only .
 ### [🔰] Features :
 - Audio Listener
 - Mini Screen
@@ -37,7 +37,7 @@ I'm a remote control hater cause' I just want to GAME !
 -  _`python launch.py`_
 
 > [!TIP]
-> You can connect Network tunneler to let your friend play on your PC.
+> You can connect Network tunneler/Portforwarding to let your friend play on your PC .
 
 <div align="center">
 <h1>[🖼️] Preview | Screenshots & Videos</h1>
