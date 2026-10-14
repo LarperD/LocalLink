@@ -18,10 +18,16 @@
 <br/>
 
 This is my very first **Vibe Coding** Project.
-I'm a remote control apps hater, and I just want to GAME !
+I'm a remote control hater cause' I just want to GAME !
 
-LocalLink is unlike SteamLink. The purpose is to use your device as a "**Controller**" only.
-
+**LocalLink** is **unlike SteamLink**. The purpose is to use your device as a "**Controller**" only.
+### [🔰] Features :
+- Audio Listener
+- Mini Screen
+- Mouse (Touchpad)
+- Keyboard (Shortcut Maker, Live Typeing)
+- Gamepad (Multi-Layout, LayoutEditor, Background Screen,Touch Background)
+- PC (Input Passing) // PC to PC
 ### [🟢] Tested on :
 - _**Linux** : Arch linux + SwayWM // **Pipewire**_
 - _**Windows** : Tiny 10 22H2_
