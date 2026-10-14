@@ -1,8 +1,10 @@
 
 # 🔷 LocalLink 🫐 | Remote Controller For Gamers
  Python 3.8 ++ | OpenSource Project | TUI Tools
- 
-<img width="805" height="681" alt="image" src="https://github.com/user-attachments/assets/25b09cde-0159-4bf1-9ed8-9270f272e0f8" />
+
+ <img width="950" height="173" alt="image" src="https://github.com/user-attachments/assets/f55d563f-485f-4a5e-9069-adb197f2bf7e" />
+
+
 
 
 # [📢] What is it ? What does it do ? :
@@ -28,7 +30,7 @@ LocalLink is unlike SteamLink. The purpose is to use your device as a "**Control
 ### [🎮] To Run it :
 -  _`python launch.py`_
 # [🖼️] Preview :
-![Uploading image.png…]()
+<img width="805" height="681" alt="image" src="https://github.com/user-attachments/assets/25b09cde-0159-4bf1-9ed8-9270f272e0f8" />
 
 https://github.com/user-attachments/assets/bb592860-7365-43c3-98fc-3d2cee2b96ad
 
