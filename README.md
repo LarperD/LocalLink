@@ -1,6 +1,7 @@
 
 # 🔷 LocalLink 🫐 | Remote Controller For Gamers
-<img width="519" height="134" alt="image" src="https://github.com/user-attachments/assets/c06f40ae-a0c1-4704-9e7a-1a42a7b161e2" />
+<img width="921" height="171" alt="image" src="https://github.com/user-attachments/assets/489ed718-286c-4cee-a362-46dfe1c0a47f" />
+
 
 
 # [📢] What is it ? What does it do ? :
