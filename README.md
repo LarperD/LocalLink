@@ -1,6 +1,5 @@
 
 # 🔷 LocalLink 🫐 | Local Remote Controller For Gamers
-<br/>
 
 # [📢] What is it ? What does it do ? :
  - Turn your Devices into **Controllers** for pc gaming locally
