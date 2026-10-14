@@ -2,11 +2,7 @@
 # 🔷 LocalLink 🫐 | Remote Controller For Gamers
  Python 3.8 ++ | OpenSource Project | TUI Tools
  
-<img width="682" height="168" alt="image" src="https://github.com/user-attachments/assets/5c19a5bd-3ee9-45af-b0a4-a834224f2fb2" />
-
-
-
-
+<img width="1069" height="175" alt="image" src="https://github.com/user-attachments/assets/9601c482-ed26-4f79-be36-1d165f7c7870" />
 
 
 
