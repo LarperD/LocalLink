@@ -12,6 +12,8 @@ I'm a remote control apps hater, and I just want to GAME
 
 ## Tested on :
 - Arch linux + SwayWM
+## ⚠️Firewalls :
+- Please allow `8765` for default `tcp` port
 # To run it :
   `python launch.py`
 # Preview :
