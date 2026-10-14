@@ -1,9 +1,14 @@
 
 # LocalLink | Local Remote Controller For Gamers
 
-### What is it ? :
-- urn your Devices into **Controllers** for pc gaming locally
-- No client installation // Any (Browsers required)
+### What is it ? What does it do ?:
+- Turn your Devices into **Controllers** for pc gaming locally
+- Running Locally on Browsers
+- Fast input system
+
+note : The screen mirroring system wasn't make for real-use as the backend is too slow for gaming. // Disabling it will improve quite an input latency
+
+(I only add it for visualization.) 
 
 This is my very first **Vibe Coding** Project.
 I'm a remote control apps hater, and I just want to GAME !
