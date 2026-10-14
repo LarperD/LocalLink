@@ -1,7 +1,9 @@
 
-# 🔥 LocalLink 🩵
+# ♦ LocalLink 
 <img width="933" height="741" alt="image" src="https://github.com/user-attachments/assets/6a3129fa-a5ed-470a-a14c-a7d47f7a4e42" />
-- Turn your Devices into **Controllers** for pc gaming locally
+
+### What is it ? :
+- urn your Devices into **Controllers** for pc gaming locally
 - No client installation // Any (Browsers required)
 
 This is my very first **Vibe Coding** Project.
