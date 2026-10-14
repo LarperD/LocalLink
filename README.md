@@ -36,6 +36,9 @@ I'm a remote control hater cause' I just want to GAME !
 ### [🎮] To Run it :
 -  _`python launch.py`_
 
+> [!TIP]
+> You can connect Network tunneler to let your friend play on your PC.
+
 <div align="center">
 <h1>[🖼️] Preview | Screenshots & Videos</h1>
  
