@@ -32,6 +32,7 @@ LocalLink is unlike SteamLink. The purpose is to use your device as a "**Control
 
 <div align="center">
 <h1>[🖼️] Preview | Screenshots & Videos</h1>
+ 
 <img width="805" height="681" alt="image" src="https://github.com/user-attachments/assets/25b09cde-0159-4bf1-9ed8-9270f272e0f8" />
 
 https://github.com/user-attachments/assets/bb592860-7365-43c3-98fc-3d2cee2b96ad
