@@ -1,5 +1,5 @@
 
-# :shipit: LocalLink | Local Remote Controller For Gamers
+# LocalLink | Local Remote Controller For Gamers
 
 ## [📢] What is it ? What does it do ? :
 - Turn your Devices into **Controllers** for pc gaming locally
@@ -20,7 +20,7 @@ LocalLink is unlike SteamLink. The purpose is to use your device as a "**Control
 - Please allow `8765` by default for `tcp` port
 #### [🎮] To Run it :
 -  python launch.py
-## Preview :
+## [:shipit:] Preview :
 <img width="933" height="741" alt="image" src="https://github.com/user-attachments/assets/fe175c40-4bd9-415e-8ce7-35295c99a35e" />
 
 https://github.com/user-attachments/assets/bb592860-7365-43c3-98fc-3d2cee2b96ad
