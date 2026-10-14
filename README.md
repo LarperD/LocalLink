@@ -1,11 +1,10 @@
 
 # 🔷 LocalLink 🫐 | Remote Controller For Gamers
+<div align="center">
  Python 3.8 ++ | OpenSource Project | TUI Tools
+</div>
 
  <img width="950" height="173" alt="image" src="https://github.com/user-attachments/assets/f55d563f-485f-4a5e-9069-adb197f2bf7e" />
-
-
-
 
 # [📢] What is it ? What does it do ? :
  - Turn your Devices into **Controllers** for pc gaming locally
