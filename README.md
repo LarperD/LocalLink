@@ -20,7 +20,7 @@
 This is my very first **Vibe Coding** Project.
 I'm a remote control apps hater, and I just want to GAME !
 
-LocalLink is unlike SteamLink. The purpose is to use your device as a "**Controller**".
+LocalLink is unlike SteamLink. The purpose is to use your device as a "**Controller**" only.
 
 ### [🟢] Tested on :
 - _**Linux** : Arch linux + SwayWM // **Pipewire**_
