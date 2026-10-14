@@ -21,7 +21,7 @@ LocalLink is unlike SteamLink. The purpose is to use your device as a "**Control
 - _Please allow `8765` by default for `tcp` port_
 ### [🎮] To Run it :
 -  _python launch.py_
-## [:shipit:] Preview :
+# [🖼️] Preview :
 <img width="933" height="741" alt="image" src="https://github.com/user-attachments/assets/fe175c40-4bd9-415e-8ce7-35295c99a35e" />
 
 https://github.com/user-attachments/assets/bb592860-7365-43c3-98fc-3d2cee2b96ad
