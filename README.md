@@ -14,8 +14,12 @@ LocalLink is unlike SteamLink. The purpose is to use your device as a "**Control
 # To run it :
   `python launch.py`
 # Preview :
-<img width="1920" height="1034" alt="image" src="https://github.com/user-attachments/assets/41924557-7a30-407f-a96f-d42af731efe0" />
+<img width="933" height="741" alt="image" src="https://github.com/user-attachments/assets/6a3129fa-a5ed-470a-a14c-a7d47f7a4e42" />
+
 
 https://github.com/user-attachments/assets/bb592860-7365-43c3-98fc-3d2cee2b96ad
 
 https://github.com/user-attachments/assets/bb45a76c-d2f9-4e42-a897-034a0a526c1d
+
+<img width="925" height="770" alt="image" src="https://github.com/user-attachments/assets/6e5b4529-ad98-4f85-ba3c-769c953248fd" />
+
