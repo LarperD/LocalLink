@@ -12,7 +12,7 @@ LocalLink is unlike SteamLink. The purpose is to use your device as a "**Control
 - Linux -> Arch linux + SwayWM 
 - Windows -> Tiny 10 22H2
 ## ⚠️Firewalls :
-- Please allow `8765` for default `tcp` port
+- Please allow `8765` by default for `tcp` port
 # To run it :
   `python launch.py`
 # Preview :
