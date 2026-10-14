@@ -11,8 +11,8 @@ I'm a remote control apps hater, and I just want to GAME !
 LocalLink is unlike SteamLink. The purpose is to use your device as a "**Controller**".
 
 ### Tested on :
-- **Linux** -> Arch linux + SwayWM 
-- **Windows** -> Tiny 10 22H2
+- **Linux** : Arch linux + SwayWM 
+- **Windows** : Tiny 10 22H2
 ### ⚠️Firewalls :
 - Please allow `8765` by default for `tcp` port
 ### To run it :
