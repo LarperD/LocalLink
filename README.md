@@ -1,5 +1,5 @@
 
-# LocalLink
+# 🔥 LocalLink 🩵
 - Turn your Devices into **Controllers** for pc gaming locally
 - No client installation // Any (Browsers required)
 
