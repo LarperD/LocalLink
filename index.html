@@ -1,0 +1,707 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="theme-color" content="#161a22">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Remote Input</title>
+<style>
+:root{--bg:#161a22;--p:#1f2531;--b:#323b4d;--t:#e9edf5;--m:#8f9bb3;--a:#6aa6ff;--ok:#5fd6a4}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--t);font:15px/1.4 "Segoe UI",system-ui,sans-serif;overscroll-behavior:none}
+header{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:6px;padding:6px 8px;padding-top:max(6px,env(safe-area-inset-top));background:var(--bg);border-bottom:1px solid var(--b)}
+nav{display:flex;flex:1;gap:2px;padding:2px;background:var(--p);border:1px solid var(--b);border-radius:10px}nav button{flex:1;min-height:30px;padding:3px 6px;border:0;background:transparent;color:var(--m)}nav button.on{background:var(--a);color:#0c1220}
+button,select,input,textarea{font:inherit;color:inherit;background:var(--p);border:1px solid var(--b);border-radius:8px;padding:5px 10px;min-height:34px}
+button{cursor:pointer;touch-action:manipulation;user-select:none}
+button.on,button:active{background:var(--a);border-color:var(--a);color:#0c1220}
+:focus-visible{outline:2px solid var(--a);outline-offset:2px}
+#st{color:var(--m);font-size:14px;line-height:1;padding:0 2px}#st.ok{color:var(--ok)}
+#scr,#aud{min-width:38px;padding:4px 8px;font-size:16px;line-height:1}
+main{padding:8px;padding-bottom:max(8px,env(safe-area-inset-bottom))}
+.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+.m{color:var(--m)}
+#touch{height:calc(100dvh - 190px);min-height:220px;border:1px solid var(--b);border-radius:14px;background:var(--p);touch-action:none;display:grid;place-items:center;color:var(--m);user-select:none}
+.mb{flex:1}
+.keys{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.keys button{min-width:40px;padding:4px 8px}
+textarea{width:100%;min-height:70px}
+#stage{position:relative;height:calc(100dvh - 140px);min-height:300px;border:1px solid var(--b);border-radius:14px;background:var(--p);touch-action:none;user-select:none;overflow:hidden}
+#stagewrap{position:relative}
+#gpbg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;border-radius:14px;pointer-events:none;user-select:none}
+#stage.bg{background-color:transparent;z-index:1}
+#stage.bg .ctl{background:rgba(42,50,66,.55);border-color:rgba(66,80,105,.85)}
+#stage.bg .ctl.touchpad{background:rgba(35,42,56,.35)}
+#stage.bg .ctl.on{background:rgba(106,166,255,.8)}
+#stage.bg .ctl.touchpad.on{background:rgba(51,64,90,.7)}
+details.m label{display:inline-flex;gap:6px;align-items:center;margin:4px 14px 4px 0}
+#stagewrap:fullscreen #gpbg{border-radius:0}
+#stagewrap:fullscreen{background:var(--bg)}
+#stagewrap:fullscreen #stage{height:100dvh;border-radius:0}
+#stage.edit{background-image:linear-gradient(var(--b) 1px,transparent 1px),linear-gradient(90deg,var(--b) 1px,transparent 1px);background-size:5% 10%}
+.ctl{position:absolute;transform:translate(-50%,-50%);border-radius:50%;background:#2a3242;border:2px solid #425069;display:grid;place-items:center;font-weight:600;touch-action:none;user-select:none}
+.ctl.on{background:var(--a);color:#0c1220}
+.ctl.sel{outline:2px solid var(--ok);outline-offset:3px}
+.ctl.touchpad{border-radius:14px;background:#232a38;color:var(--m);font-weight:500}
+.ctl.touchpad.on{background:#33405a;color:var(--t)}
+.edit .ctl{cursor:grab}
+.rz{position:absolute;right:-10px;bottom:-10px;width:26px;height:26px;border-radius:50%;background:var(--ok);border:2px solid #0c1220;cursor:nwse-resize;touch-action:none;z-index:2}
+#insp input[type=number]{width:64px}
+.knob{position:absolute;left:30%;top:30%;width:40%;height:40%;border-radius:50%;background:#52617f;display:grid;place-items:center;pointer-events:none;font-size:13px}
+.dpad{grid-template:repeat(3,1fr)/repeat(3,1fr);place-items:center;color:var(--m)}
+.dpad span{pointer-events:none}
+#panel{margin-top:10px}
+#insp{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+#insp label{display:grid;gap:3px;font-size:13px;color:var(--m)}
+#warn{background:#3a2f1a;border:1px solid #6b5420;border-radius:8px;padding:8px 12px;margin-bottom:10px}
+#scrwin{position:fixed;z-index:50;width:320px;background:var(--p);border:1px solid var(--b);border-radius:12px;overflow:hidden;box-shadow:0 8px 28px #0009;touch-action:none}
+#scrbar{display:flex;align-items:center;gap:6px;padding:4px 6px 4px 10px;cursor:grab;user-select:none;font-size:13px}
+#scrbar button{min-height:28px;padding:2px 9px}
+#scrst{flex:1;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#scrimg{display:block;width:100%;height:auto;min-height:60px;background:#000;user-select:none}
+#scrgrip{position:absolute;right:0;bottom:0;width:24px;height:24px;cursor:nwse-resize;background:linear-gradient(135deg,transparent 50%,var(--m) 50%);opacity:.7}
+#scrset{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;padding:6px 10px;font-size:13px;color:var(--m);align-items:center}
+#scrset input{min-height:24px;padding:0}
+#scrset select,details select{min-height:28px;padding:2px 6px}
+#scrwin.min #scrimg,#scrwin.min #scrset,#scrwin.min #scrgrip{display:none}
+#scrwin.lock{pointer-events:none}#scrwin.lock #scrbar{pointer-events:auto}
+input[type=range]{padding:0;min-height:24px;border:0;background:none;accent-color:var(--a)}
+summary{cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:4px;min-height:34px;padding:4px 10px;border:1px solid var(--b);border-radius:8px;background:var(--p);color:var(--m)}
+summary::-webkit-details-marker{display:none}summary::after{content:"▾"}details[open]>summary::after{content:"▴"}
+.opts{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;padding:8px 2px}
+.opts label{display:inline-flex;gap:6px;align-items:center}
+.sec{margin:10px 0 6px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--m)}
+#pcpad{height:calc(100dvh - 190px);min-height:220px;border:1px dashed var(--b);border-radius:14px;background:var(--p);display:grid;place-items:center;text-align:center;color:var(--m);cursor:pointer;user-select:none;padding:0 16px}
+#pcpad{position:relative;overflow:hidden}
+#pcpad.cap{border:2px solid var(--ok);color:var(--t);cursor:none}
+#pcpad:fullscreen{height:100dvh;border:0;border-radius:0}
+#pcbg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;pointer-events:none;user-select:none}
+#pcmsg{position:relative;padding:10px 16px;border-radius:12px}
+#pcpad.scr #pcmsg{background:rgba(22,26,34,.78);color:var(--t)}
+#pcpad.cap.scr #pcmsg{display:none}
+#kmodes{gap:2px;padding:2px;background:var(--p);border:1px solid var(--b);border-radius:10px;width:max-content}
+#kmodes button{min-height:28px;padding:2px 14px;border:0;background:transparent}#kmodes button.on{background:var(--a)}
+#touch{font-size:13px;text-align:center;padding:0 16px}
+@media (max-width:420px){body{font-size:14px}nav button{padding:3px 2px;font-size:13px}}
+[hidden]{display:none!important}
+</style></head>
+<body>
+<header>
+  <nav>
+    <button data-t="mouse" class="on">Mouse</button>
+    <button data-t="kb">Keyboard</button>
+    <button data-t="gp">Gamepad</button>
+    <button data-t="pc">PC</button>
+  </nav>
+  <button id="scr" title="Show or hide the live PC screen" aria-label="Screen view">🖥</button>
+  <button id="aud" title="Hear this PC's audio (tap to unmute / mute)" aria-label="PC audio" aria-pressed="false">🔇</button>
+  <span id="st" title="connecting">○</span>
+</header>
+<main>
+<section id="mouse">
+  <div id="touch">Drag to move · tap to click<br>two fingers: scroll / right-click</div>
+  <div class="row" style="margin-top:8px">
+    <button class="mb" data-mb="left" style="flex:2;min-height:44px">Left</button><button class="mb" data-mb="middle">Mid</button><button class="mb" data-mb="right" style="flex:2;min-height:44px">Right</button>
+  </div>
+  <div class="row"><label class="m" style="display:flex;flex:1;gap:8px;align-items:center">Speed <input id="sens" type="range" min="0.5" max="4" step="0.1" value="1.6" style="flex:1"></label></div>
+</section>
+
+<section id="kb" hidden>
+  <input id="live" type="text" style="width:100%;margin-bottom:8px" aria-label="Live typing" placeholder="⌨ Type here: sent to the PC as you type" enterkeyhint="send" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false">
+  <div class="row"><input id="pk" type="text" style="flex:1;min-width:150px" aria-label="Press keys" title="e.g. win+q, ctrl+alt+t (space = next step)" placeholder="Press keys: ctrl+alt+t (space = next)" enterkeyhint="go" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false"><button id="pkgo">Press</button></div>
+  <div class="row" style="justify-content:space-between">
+  <div id="kmodes" role="group" aria-label="Key mode"><button data-m="tap">Tap</button><button data-m="hold">Hold</button><button data-m="toggle">Toggle</button></div>
+    <label class="m"><input type="checkbox" id="cap"> Forward keyboard</label></div>
+  <div class="m" id="kmhint" style="margin-bottom:6px;font-size:12px"></div>
+  <div class="keys" id="mods"></div>
+  <div class="keys" id="nums"></div>
+  <div class="keys" id="vk"></div>
+  <div class="row" style="justify-content:space-between;margin-top:10px"><span class="sec" style="margin:0">Custom keybinds</span><button id="cbEdit">Edit</button></div>
+  <div class="keys" id="cb"></div>
+  <div class="row" id="cbForm" hidden>
+    <input id="cbl" placeholder="Label" size="10" aria-label="Label">
+    <input id="cbk" placeholder="ctrl+shift+t  (space = next step)" size="26" aria-label="Keys">
+    <button id="cbrec">Record</button><button id="cbadd">Add</button><button id="cbdel" hidden>Delete</button>
+    <button id="cbexp">Export</button><button id="cbimp">Import</button>
+    <input type="file" id="cbfile" accept=".json" hidden>
+  </div>
+</section>
+
+<section id="pc" hidden>
+  <div id="pcpad" tabindex="0" role="button" aria-label="Take control of the host PC">
+    <img id="pcbg" alt="" hidden draggable="false">
+    <div id="pcmsg"><b id="pct">Click to take control</b><br><span id="pcs2">Your mouse and keyboard on this PC will drive the host PC</span></div>
+  </div>
+  <div class="row" style="margin-top:8px">
+    <label class="m"><input type="checkbox" id="pcshow"> Screen</label>
+    <select id="pcsel" class="scrsel selrow" hidden aria-label="Monitor" title="Which monitor to show"></select>
+    <select id="pcmp" class="mpsel" aria-label="Screen quality" title="Screen quality"></select>
+    <label class="m" style="display:flex;flex:1;min-width:120px;gap:8px;align-items:center">Speed <input id="pcsens" type="range" min="0.3" max="3" step="0.1" value="1" style="flex:1"></label>
+    <button id="pcfs" title="Fullscreen, and capture shortcut keys where the browser allows it">⛶ Fullscreen</button>
+  </div>
+  <div class="m" id="pchint" style="font-size:12px"></div>
+</section>
+
+<section id="gp" hidden>
+  <div id="warn" hidden>The virtual controller isn't available. Key and mouse bindings still work.</div>
+  <div class="row">
+    <select id="lay" aria-label="Layout" style="flex:1;min-width:0"></select>
+    <select id="gqsel" class="scrsel selrow" aria-label="Monitor" title="Which monitor to mirror" hidden style="max-width:34%"></select>
+    <button id="edit" title="Edit layout">✎ Edit</button>
+    <button id="fs" title="Fullscreen" aria-label="Fullscreen">⛶</button>
+    <details id="gopt"><summary>Options</summary></details>
+  </div>
+  <div id="goptbody" class="opts" hidden>
+    <label class="m">Sensitivity <input id="gsens" type="range" min="0.3" max="3" step="0.1" value="1"></label>
+    <label class="m"><input type="checkbox" id="gbgon"> Screen behind</label>
+    <label class="m">Opacity <input id="gbgo" type="range" min="0.2" max="1" step="0.05" value="0.85"></label>
+    <button id="reset" title="Restore this layout, sensitivity and screen opacity">Reset</button>
+    <details class="m"><summary>Mirror quality</summary>
+      <div class="opts">
+      <label>Preset <select id="gmp" class="mpsel"></select></label>
+      <label class="selrow" hidden>Screen <select id="gsel" class="scrsel"></select></label>
+      <label>Quality <input id="gq" type="range" min="20" max="90" step="5"></label>
+      <label>Size <input id="gs" type="range" min="0.2" max="1" step="0.05"></label>
+      <label>Frame rate <input id="gf" type="range" min="1" max="30"></label>
+      <div class="m engnote" style="font-size:12px"></div></div>
+    </details>
+  </div>
+  <div id="stagewrap"><img id="gpbg" alt="" hidden draggable="false"><div id="stage"></div></div>
+  <div id="panel" hidden>
+    <div class="row">
+      <button id="addBtn">Add button</button><button id="addStick">Add stick</button><button id="addDpad">Add D-pad</button><button id="addTp">Add touchpad</button>
+      <button id="saveq">Save</button><button id="save">Save as…</button><button id="renlay">Rename layout</button><button id="del">Delete layout</button>
+      <button id="exp">Export</button><button id="imp">Import</button>
+      <input type="file" id="file" accept=".json" hidden>
+    </div>
+    <div id="insp"></div>
+  </div>
+</section>
+</main>
+<div id="scrwin" hidden>
+  <div id="scrbar"><select id="qsel" class="scrsel selrow" aria-label="Monitor" title="Which monitor to mirror" hidden style="max-width:42%;min-height:28px;padding:2px 6px"></select><span id="scrst" class="m"></span>
+    <button id="scrcfg" title="Quality and size" aria-label="Settings">⚙</button>
+    <button id="scrlock" title="Let touches pass through the picture">Lock</button>
+    <button id="scrmin" title="Minimize" aria-label="Minimize">–</button>
+    <button id="scrx" title="Close" aria-label="Close">✕</button></div>
+  <div id="scrset" hidden>
+    <label for="scmp">Preset</label><select id="scmp" class="mpsel"></select>
+    <label for="scsel" class="selrow" hidden>Screen</label><select id="scsel" class="scrsel selrow" hidden></select>
+    <label for="scq">Quality</label><input id="scq" type="range" min="20" max="90" step="5">
+    <label for="scs">Size</label><input id="scs" type="range" min="0.2" max="1" step="0.05">
+    <label for="scf">Frame rate</label><input id="scf" type="range" min="1" max="30">
+    <label for="sco">Opacity</label><input id="sco" type="range" min="0.3" max="1" step="0.05">
+    <span class="m engnote" style="grid-column:1/3;font-size:12px"></span>
+  </div>
+  <img id="scrimg" alt="Live view of your PC screen" draggable="false">
+  <i id="scrgrip"></i>
+</div>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
+const tok=new URLSearchParams(location.search).get('token')||'';
+let ws,tab='mouse';
+function conn(){
+  ws=new WebSocket(`${location.protocol==='https:'?'wss':'ws'}://${location.host}/ws?token=${encodeURIComponent(tok)}`);
+  ws.onopen=()=>{const e=$('#st');e.textContent='●';e.className='ok';e.title='connected'};
+  ws.onclose=()=>{const e=$('#st');e.textContent='○';e.className='';e.title='reconnecting…';setTimeout(conn,1500)};
+  ws.onmessage=e=>{$('#warn').hidden=JSON.parse(e.data).pad!==false};
+}
+conn();
+const raw=o=>ws&&ws.readyState===1&&ws.send(JSON.stringify(o));
+/* pointer moves / scrolls are merged and sent once per frame; anything else flushes them first so order is kept */
+const Q={mx:0,my:0,sx:0,sy:0};let qf=0;
+function flushQ(){qf=0;
+  if(Q.mx||Q.my){raw({t:'move',dx:Q.mx,dy:Q.my});Q.mx=Q.my=0}
+  if(Q.sx||Q.sy){raw({t:'scroll',dx:Q.sx,dy:Q.sy});Q.sx=Q.sy=0}}
+const send=o=>{
+  if(o.t==='move'){Q.mx+=o.dx;Q.my+=o.dy}else if(o.t==='scroll'){Q.sx+=o.dx||0;Q.sy+=o.dy||0}
+  else{flushQ();return raw(o)}
+  qf||(qf=requestAnimationFrame(flushQ));
+};
+addEventListener('blur',()=>{send({t:'releaseall'});heldBtns.forEach(b=>{b._h=null;b.classList.remove('on')});heldBtns.clear()});
+
+$$('nav button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;
+  $$('nav button').forEach(x=>x.classList.toggle('on',x===b));
+  $$('main>section').forEach(s=>s.hidden=s.id!==tab);bgApply()});
+
+/* ---------- floating screen view ---------- */
+const win=$('#scrwin'),simg=$('#scrimg');let srt;
+let SC={on:false,x:null,y:null,w:320,q:50,s:.5,f:12,o:1,min:false,lock:false,out:''};
+try{Object.assign(SC,JSON.parse(localStorage.getItem('ri_scr')||'{}'))}catch{}
+const saveSC=()=>localStorage.setItem('ri_scr',JSON.stringify(SC));
+const surl=()=>`/screen.mjpg?token=${encodeURIComponent(tok)}&q=${SC.q}&scale=${SC.s}&fps=${SC.f}${SC.out?`&output=${encodeURIComponent(SC.out)}`:''}&_=${Date.now()}`;
+function place(){
+  SC.w=Math.max(150,Math.min(SC.w,innerWidth-8));win.style.width=SC.w+'px';
+  const h=win.offsetHeight||110;
+  SC.x=Math.max(0,Math.min(SC.x==null?innerWidth-SC.w-12:SC.x,innerWidth-Math.min(SC.w,90)));
+  SC.y=Math.max(0,Math.min(SC.y==null?innerHeight-h-12:SC.y,innerHeight-34));
+  win.style.left=SC.x+'px';win.style.top=SC.y+'px';
+}
+function stream(){clearTimeout(srt);if(SC.on&&!SC.min&&!document.hidden)simg.src=surl();else simg.removeAttribute('src');pcApply(1)}
+function applyScr(restart){
+  win.hidden=!SC.on;$('#scr').classList.toggle('on',SC.on);
+  win.classList.toggle('min',SC.min);win.classList.toggle('lock',SC.lock);$('#scrlock').classList.toggle('on',SC.lock);
+  win.style.opacity=SC.o;place();saveSC();if(restart)stream();
+}
+function track(mv){const up=()=>{removeEventListener('pointermove',mv);removeEventListener('pointerup',up);removeEventListener('pointercancel',up);saveSC()};
+  addEventListener('pointermove',mv);addEventListener('pointerup',up);addEventListener('pointercancel',up)}
+$('#scrbar').onpointerdown=e=>{if(e.target.closest('button'))return;const r=win.getBoundingClientRect(),ox=e.clientX-r.left,oy=e.clientY-r.top;
+  track(ev=>{SC.x=ev.clientX-ox;SC.y=ev.clientY-oy;place()})};
+$('#scrgrip').onpointerdown=e=>{e.preventDefault();const l=win.getBoundingClientRect().left;track(ev=>{SC.w=ev.clientX-l;place()})};
+$('#scr').onclick=()=>{SC.on=!SC.on;if(SC.on)SC.min=false;applyScr(1)};
+$('#scrx').onclick=()=>{SC.on=false;applyScr(1)};
+$('#scrmin').onclick=()=>{SC.min=!SC.min;applyScr(1)};
+$('#scrlock').onclick=()=>{SC.lock=!SC.lock;applyScr()};
+$('#scrcfg').onclick=()=>{$('#scrset').hidden=!$('#scrset').hidden;place()};
+[['q','scq','gq'],['s','scs','gs'],['f','scf','gf']].forEach(([k,...ids])=>ids.forEach(id=>{const el=$('#'+id);el.value=SC[k];
+  el.onchange=()=>{SC[k]=+el.value;ids.forEach(i=>$('#'+i).value=SC[k]);saveSC();syncMP();stream();if(GB.on)bgApply(1)}}));
+$('#sco').value=SC.o;$('#sco').oninput=e=>{SC.o=+e.target.value;win.style.opacity=SC.o;saveSC()};
+simg.onerror=()=>{if(!simg.getAttribute('src'))return;$('#scrst').textContent='no signal (check the server window)';clearTimeout(srt);srt=setTimeout(stream,4000)};
+simg.onload=()=>$('#scrst').textContent='';
+addEventListener('resize',place);
+$('#gopt').addEventListener('toggle',e=>{$('#goptbody').hidden=!e.target.open});
+document.addEventListener('fullscreenchange',()=>{(document.fullscreenElement||document.body).append(win);place()});
+applyScr(1);
+
+/* ---------- PC audio -> this device (raw PCM over a WebSocket, played with Web Audio) ---------- */
+let AU=false,actx,aws,anext=0;
+function playPcm(buf,f){
+  const i16=new Int16Array(buf),ch=f.ch,n=Math.floor(i16.length/ch);if(!n)return;
+  const ab=actx.createBuffer(2,n,f.rate),L=ab.getChannelData(0),R=ab.getChannelData(1);
+  for(let i=0,j=0;i<n;i++,j+=ch){L[i]=i16[j]/32768;R[i]=(ch>1?i16[j+1]:i16[j])/32768}
+  const now=actx.currentTime;
+  if(anext<now+.02)anext=now+.08;      // ran dry: re-buffer a little
+  else if(anext>now+.6)return;         // too far behind: skip ahead to stay live
+  const s=actx.createBufferSource();s.buffer=ab;s.connect(actx.destination);s.start(anext);anext+=n/f.rate;
+}
+function audioConnect(){
+  if(!AU||aws)return;
+  const w=new WebSocket(`${location.protocol==='https:'?'wss':'ws'}://${location.host}/audio?token=${encodeURIComponent(tok)}`);
+  w.binaryType='arraybuffer';aws=w;let fmt=null;
+  w.onmessage=e=>{
+    if(typeof e.data==='string'){
+      const m=JSON.parse(e.data);
+      if(m.error){alert(m.error);audioSet(false);return}
+      fmt=m;anext=0;return;
+    }
+    if(fmt&&AU&&actx.state==='running')playPcm(e.data,fmt);
+  };
+  w.onclose=()=>{if(aws===w){aws=null;if(AU)setTimeout(audioConnect,1500)}};
+}
+function audioSet(on){
+  AU=on;
+  if(on){
+    if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)({latencyHint:'interactive'});
+    actx.resume();audioConnect();
+  }else if(aws){const w=aws;aws=null;w.close()}   // muted: stop the stream too, so it costs no bandwidth
+  $('#aud').textContent=on?'🔊':'🔇';$('#aud').classList.toggle('on',on);$('#aud').setAttribute('aria-pressed',on);
+}
+$('#aud').onclick=()=>audioSet(!AU);   // the tap is also the user gesture browsers require to start audio
+
+/* ---------- screen behind the controller ---------- */
+const gbg=$('#gpbg');let GB={on:true,o:.85},gbt;
+try{Object.assign(GB,JSON.parse(localStorage.getItem('ri_gbg')||'{}'))}catch{}
+const saveGB=()=>localStorage.setItem('ri_gbg',JSON.stringify(GB));
+function bgApply(restart){
+  const show=GB.on&&tab==='gp'&&!document.hidden;
+  $('#stage').classList.toggle('bg',GB.on);gbg.hidden=!GB.on;gbg.style.opacity=GB.o;clearTimeout(gbt);
+  if(show){if(restart||!gbg.getAttribute('src'))gbg.src=surl()}else gbg.removeAttribute('src');
+  saveGB();
+}
+gbg.onerror=()=>{if(!gbg.getAttribute('src'))return;clearTimeout(gbt);gbt=setTimeout(()=>{if(GB.on&&tab==='gp')gbg.src=surl()},4000)};
+$('#gbgon').checked=GB.on;$('#gbgo').value=GB.o;
+$('#gbgon').onchange=e=>{GB.on=e.target.checked;bgApply()};
+$('#gbgo').oninput=e=>{GB.o=+e.target.value;gbg.style.opacity=GB.o;saveGB()};
+bgApply();
+function loadScreens(){
+  fetch(`/screens?token=${encodeURIComponent(tok)}`).then(r=>r.ok?r.json():Promise.reject()).then(d=>{
+    const list=d.screens||[],ids=list.map(x=>x.id);let bad=false;
+    if(SC.out&&!ids.includes(SC.out)){SC.out='';bad=true}
+    $$('.scrsel').forEach(sel=>{sel.replaceChildren(...list.map(x=>new Option(x.label,x.id)));sel.value=SC.out||d.default||''});
+    $$('.selrow').forEach(el=>el.hidden=list.length<3);   // nothing to choose with a single monitor
+    $$('.engnote').forEach(el=>el.textContent=d.engine?'Capture engine: '+d.engine:'');
+    if(bad){saveSC();stream();if(GB.on)bgApply(1)}
+  }).catch(()=>{});
+}
+$$('.scrsel').forEach(sel=>sel.onchange=()=>{SC.out=sel.value;$$('.scrsel').forEach(x=>x.value=SC.out);saveSC();stream();if(GB.on)bgApply(1)});
+const MP={fast:{q:35,s:.4,f:20},balanced:{q:50,s:.5,f:12},sharp:{q:75,s:.8,f:8}};
+function syncMP(){const k=Object.keys(MP).find(k=>MP[k].q==SC.q&&MP[k].s==SC.s&&MP[k].f==SC.f)||'custom';$$('.mpsel').forEach(x=>x.value=k)}
+$$('.mpsel').forEach(sel=>{
+  [['fast','Fast'],['balanced','Balanced'],['sharp','Sharp'],['custom','Custom']].forEach(([v,l])=>{const o=new Option(l,v);o.disabled=v==='custom';sel.add(o)});
+  sel.onchange=()=>{const p=MP[sel.value];if(!p)return;Object.assign(SC,p);
+    [['q','scq','gq'],['s','scs','gs'],['f','scf','gf']].forEach(([k,...ids])=>ids.forEach(i=>$('#'+i).value=SC[k]));
+    saveSC();syncMP();stream();if(GB.on)bgApply(1)};
+});
+syncMP();
+$('#scrcfg').addEventListener('click',()=>{if(!$('#scrset').hidden)loadScreens()});
+$('details.m').addEventListener('toggle',e=>{if(e.target.open)loadScreens()});
+loadScreens();
+
+/* ---------- Mouse ---------- */
+const pads=new Map();let mx=0,my=0,sx=0,sy=0,tap=null;
+const touch=$('#touch');
+touch.onpointerdown=e=>{touch.setPointerCapture(e.pointerId);pads.set(e.pointerId,[e.clientX,e.clientY]);
+  tap=tap||{t:Date.now(),d:0,n:0};tap.n=Math.max(tap.n,pads.size)};
+touch.onpointermove=e=>{const p=pads.get(e.pointerId);if(!p)return;
+  const dx=e.clientX-p[0],dy=e.clientY-p[1];p[0]=e.clientX;p[1]=e.clientY;tap&&(tap.d+=Math.abs(dx)+Math.abs(dy));
+  if(pads.size>1){sx+=dx/pads.size;sy+=dy/pads.size}else{mx+=dx*$('#sens').value;my+=dy*$('#sens').value}};
+touch.onpointerup=touch.onpointercancel=e=>{pads.delete(e.pointerId);
+  if(tap&&!pads.size){if(tap.d<8&&Date.now()-tap.t<250)send({t:'click',b:tap.n>1?'right':'left'});tap=null}};
+setInterval(()=>{
+  const ix=Math.trunc(mx),iy=Math.trunc(my);if(ix||iy){send({t:'move',dx:ix,dy:iy});mx-=ix;my-=iy}
+  const cy=Math.trunc(-sy/14),cx=Math.trunc(sx/14);if(cx||cy){send({t:'scroll',dx:cx,dy:cy});sx-=cx*14;sy+=cy*14}
+},16);
+$$('[data-mb]').forEach(b=>{const s=v=>()=>send({t:'btn',b:b.dataset.mb,s:v});
+  b.onpointerdown=s(1);b.onpointerup=b.onpointerleave=b.onpointercancel=s(0)});
+
+/* ---------- Keyboard ---------- */
+let kmode=['tap','hold','toggle'].includes(localStorage.getItem('ri_kmode'))?localStorage.getItem('ri_kmode'):'tap';
+const heldBtns=new Set();
+const kdown=ks=>ks.forEach(k=>send({t:'key',k,s:'down'})),kup=ks=>[...ks].reverse().forEach(k=>send({t:'key',k,s:'up'}));
+/* keys: array of key names (or a function returning one, or null = tap only); tap: what a plain tap does */
+function bindKey(b,keys,tap){
+  const get=()=>typeof keys==='function'?keys():keys;
+  const press=k=>{b._h=k;kdown(k);b.classList.add('on');heldBtns.add(b)};
+  b._rel=()=>{if(b._h){kup(b._h);b._h=null}b.classList.remove('on');heldBtns.delete(b)};
+  b.oncontextmenu=e=>e.preventDefault();
+  b.onpointerdown=e=>{if(kmode!=='hold')return;const k=get();if(!k)return;b.setPointerCapture(e.pointerId);press(k)};
+  b.onpointerup=b.onpointercancel=()=>{if(kmode==='hold')b._rel()};
+  b.onclick=()=>{const k=get();if(kmode==='tap'||!k)return tap();if(kmode==='toggle')b._h?b._rel():press(k)};
+}
+const mods=new Set();
+const MODS=[['Ctrl','ctrl'],['Alt','alt'],['Shift','shift'],['Win','cmd']];
+MODS.forEach(([l,k])=>{const b=document.createElement('button');b.textContent=l;
+  bindKey(b,[k],()=>{mods.has(k)?mods.delete(k):mods.add(k);b.classList.toggle('on',mods.has(k))});$('#mods').append(b)});
+const tapKey=(...k)=>{send({t:'combo',keys:[...mods,...k]});mods.clear();$$('#mods button').forEach(b=>b.classList.remove('on'))};
+'1234567890'.split('').forEach(d=>{const b=document.createElement('button');b.textContent=d;bindKey(b,[d],()=>tapKey(d));$('#nums').append(b)});
+[['Esc','esc'],['Tab','tab'],['Enter','enter'],['⌫','backspace'],['Del','delete'],['Space','space'],
+ ['↑','up'],['↓','down'],['←','left'],['→','right'],['Home','home'],['End','end'],['PgUp','page_up'],['PgDn','page_down'],
+ ...Array.from({length:12},(_,i)=>['F'+(i+1),'f'+(i+1)])].forEach(([l,k])=>{
+  const b=document.createElement('button');b.textContent=l;bindKey(b,[k],()=>tapKey(k));$('#vk').append(b)});
+[['Copy','ctrl','c'],['Paste','ctrl','v'],['Undo','ctrl','z'],['Alt+Tab','alt','tab'],['Win+D','cmd','d']].forEach(([l,...k])=>{
+  const b=document.createElement('button');b.textContent=l;b.onclick=()=>send({t:'combo',keys:k});$('#vk').append(b)});
+const pkFire=()=>{const v=$('#pk').value.trim();if(v)fire({k:v})};
+bindKey($('#pkgo'),()=>{const st=parse($('#pk').value);return st.length===1?st[0]:null},pkFire);
+$('#pk').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();pkFire()}};
+const KMH={tap:'Tap: press and release. Ctrl/Alt/Shift/Win apply to the next key.',hold:'Hold: a key stays down while your finger is on it. Use two fingers for combos.',toggle:'Toggle: tap a key to hold it down, tap again to release.'};
+function setKMode(m){
+  [...heldBtns].forEach(b=>b._rel());mods.clear();$$('#mods button').forEach(b=>b.classList.remove('on'));
+  kmode=m;localStorage.setItem('ri_kmode',m);
+  $$('#kmodes button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));$('#kmhint').textContent=KMH[m];
+}
+$$('#kmodes button').forEach(b=>b.onclick=()=>setKMode(b.dataset.m));
+setKMode(kmode);
+/* live typing: diff the field against what was already sent (handles backspace, autocorrect, IME) */
+const live=$('#live'),SENT='\u200b';let lprev='';
+live.onfocus=()=>{live.value=lprev=SENT;setTimeout(()=>live.setSelectionRange(99,99),0)};
+live.onblur=()=>{live.value=lprev=''};
+live.oninput=()=>{
+  const v=live.value;let p=0;while(p<v.length&&p<lprev.length&&v[p]===lprev[p])p++;
+  const add=v.slice(p).split(SENT).join('');
+  for(let i=0;i<lprev.length-p;i++)send({t:'combo',keys:['backspace']});
+  if(add)send({t:'text',v:add});
+  lprev=v;if(!v.startsWith(SENT)||v.length>120)live.value=lprev=SENT;
+};
+live.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();send({t:'combo',keys:['enter']});live.value=lprev=SENT}};
+const KM={' ':'space',Control:'ctrl',Meta:'cmd',ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',Escape:'esc',PageUp:'page_up',PageDown:'page_down',CapsLock:'caps_lock'};
+const kn=e=>KM[e.key]||(e.key.length>1?e.key.toLowerCase():/[a-z]/i.test(e.key)?e.key.toLowerCase():e.key);
+const fwd=e=>$('#cap').checked&&tab==='kb'&&!e.target.matches('textarea,input[type=text],input:not([type])');
+addEventListener('keydown',e=>{if(fwd(e)){e.preventDefault();if(!e.repeat)send({t:'key',k:kn(e),s:'down'})}});
+addEventListener('keyup',e=>{if(fwd(e)){e.preventDefault();send({t:'key',k:kn(e),s:'up'})}});
+
+/* custom keybinds (saved in this browser) */
+let binds=[];try{binds=JSON.parse(localStorage.getItem('ri_binds')||'[]')}catch{}
+let bEdit=false,bIdx=-1,rec=false;
+const saveBinds=()=>localStorage.setItem('ri_binds',JSON.stringify(binds));
+const AL={win:'cmd',super:'cmd',meta:'cmd',control:'ctrl',return:'enter',escape:'esc',del:'delete',pgup:'page_up',pgdn:'page_down',pageup:'page_up',pagedown:'page_down',caps:'caps_lock',spacebar:'space'};
+const nk=k=>AL[k.toLowerCase()]||(k.length===1?(/[a-z]/i.test(k)?k.toLowerCase():k):k.toLowerCase());
+const parse=s=>s.trim().split(/\s+/).filter(Boolean).map(st=>st.split('+').map(k=>k.trim()).filter(Boolean).map(nk));
+async function fire(b){for(const keys of parse(b.k)){send({t:'combo',keys});await new Promise(r=>setTimeout(r,40))}}
+function renderBinds(){
+  const el=$('#cb');el.replaceChildren();
+  if(!binds.length){const m=document.createElement('span');m.className='m';m.textContent='No custom keybinds yet. Tap Edit to add one.';el.append(m)}
+  binds.forEach((b,i)=>{const x=document.createElement('button');x.textContent=b.l;x.title=b.k;
+    if(bEdit&&i===bIdx)x.classList.add('on');bindKey(x,()=>{if(bEdit)return null;const st=parse(b.k);return st.length===1?st[0]:null},()=>bEdit?loadBind(i):fire(b));el.append(x)});
+}
+function clearForm(){bIdx=-1;$('#cbl').value=$('#cbk').value='';$('#cbadd').textContent='Add';$('#cbdel').hidden=true}
+function loadBind(i){bIdx=i;$('#cbl').value=binds[i].l;$('#cbk').value=binds[i].k;$('#cbadd').textContent='Update';$('#cbdel').hidden=false;renderBinds()}
+$('#cbEdit').onclick=()=>{bEdit=!bEdit;$('#cbEdit').classList.toggle('on',bEdit);$('#cbForm').hidden=!bEdit;clearForm();renderBinds()};
+$('#cbadd').onclick=()=>{const k=$('#cbk').value.trim();if(!k)return;const b={l:$('#cbl').value.trim()||k,k};
+  bIdx>=0?binds[bIdx]=b:binds.push(b);saveBinds();clearForm();renderBinds()};
+$('#cbdel').onclick=()=>{if(bIdx<0)return;binds.splice(bIdx,1);saveBinds();clearForm();renderBinds()};
+$('#cbrec').onclick=e=>{rec=!rec;e.target.classList.toggle('on',rec);e.target.textContent=rec?'Press keys…':'Record';e.target.blur()};
+addEventListener('keydown',e=>{
+  if(!rec)return;e.preventDefault();e.stopPropagation();
+  if(['Control','Shift','Alt','Meta'].includes(e.key))return;
+  const main=/^Key[A-Z]$/.test(e.code)?e.code.slice(3).toLowerCase():/^Digit\d$/.test(e.code)?e.code.slice(5):kn(e);
+  $('#cbk').value=[e.ctrlKey&&'ctrl',e.altKey&&'alt',e.shiftKey&&'shift',e.metaKey&&'cmd',main].filter(Boolean).join('+');
+  rec=false;$('#cbrec').classList.remove('on');$('#cbrec').textContent='Record'},true);
+$('#cbexp').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(binds,null,1)],{type:'application/json'}));a.download='keybinds.json';a.click()};
+$('#cbimp').onclick=()=>$('#cbfile').click();
+$('#cbfile').onchange=async e=>{const f=e.target.files[0];if(!f)return;
+  try{const d=JSON.parse(await f.text());if(!Array.isArray(d)||d.some(x=>typeof x.k!=='string'))throw 0;
+    binds.push(...d.map(x=>({l:String(x.l||x.k),k:x.k})));saveBinds();clearForm();renderBinds()}
+  catch{alert('That file isn’t a keybinds export.')}e.target.value=''};
+renderBinds();
+
+/* ---------- Gamepad ---------- */
+const PADBTN=['A','B','X','Y','LB','RB','LT','RT','BACK','START','L3','R3','GUIDE','UP','DOWN','LEFT','RIGHT'];
+const bt=(label,x,y,v,size=56)=>({type:'btn',label,x,y,size,bind:{k:'pad',v}});
+const PRESETS={
+ 'Xbox controller':[
+  bt('LT',8,10,'LT',60),bt('LB',8,24,'LB',60),bt('RT',92,10,'RT',60),bt('RB',92,24,'RB',60),
+  {type:'stick',label:'L',x:16,y:50,size:130,bind:{k:'pad',v:'L'}},
+  {type:'dpad',label:'',x:32,y:78,size:110,bind:{k:'pad',v:''}},
+  {type:'stick',label:'R',x:66,y:74,size:130,bind:{k:'pad',v:'R'}},
+  bt('Y',86,32,'Y'),bt('X',78,48,'X'),bt('B',94,48,'B'),bt('A',86,64,'A'),
+  bt('Back',42,12,'BACK',46),bt('Start',58,12,'START',46),bt('⌂',50,30,'GUIDE',44)],
+ 'Keyboard + mouse (FPS)':[
+  {type:'stick',label:'WASD',x:16,y:62,size:140,bind:{k:'keys',v:'w,a,s,d'}},
+  {type:'stick',label:'Aim',x:68,y:62,size:150,bind:{k:'mouse',v:'14'}},
+  {type:'btn',label:'Fire',x:90,y:36,size:70,bind:{k:'mouse',v:'left'}},
+  {type:'btn',label:'Aim',x:90,y:68,size:56,bind:{k:'mouse',v:'right'}},
+  {type:'btn',label:'Jump',x:52,y:84,size:64,bind:{k:'key',v:'space'}},
+  {type:'btn',label:'Sprint',x:12,y:16,size:56,bind:{k:'key',v:'shift'}},
+  {type:'btn',label:'Use',x:34,y:22,size:50,bind:{k:'key',v:'e'}},
+  {type:'btn',label:'Reload',x:52,y:14,size:50,bind:{k:'key',v:'r'}}]};
+const ls=(x,y,s=120)=>({type:'stick',label:'L',x,y,size:s,bind:{k:'pad',v:'L'}}),rs=(x,y,s=120)=>({type:'stick',label:'R',x,y,size:s,bind:{k:'pad',v:'R'}}),dp=(x,y,s=110)=>({type:'dpad',label:'',x,y,size:s,bind:{k:'pad',v:''}});
+const kc=(label,x,y,v,size=56)=>({type:'btn',label,x,y,size,bind:{k:'combo',v}});
+const tpd=(x,y,s=180)=>({type:'touchpad',label:'Touchpad',x,y,size:s,bind:{k:'mouse',v:'left'}});
+const sh=(l2,l1,r2,r1)=>[bt(l2,8,10,'LT',60),bt(l1,8,24,'LB',60),bt(r2,92,10,'RT',60),bt(r1,92,24,'RB',60)];
+Object.assign(PRESETS,{
+ 'DualShock 2 (PS2)':[...sh('L2','L1','R2','R1'),dp(17,50),ls(38,76),rs(62,76),bt('△',83,32,'Y',52),bt('□',74,48,'X',52),bt('○',92,48,'B',52),bt('✕',83,64,'A',52),
+  bt('Select',42,28,'BACK',46),bt('Start',58,28,'START',46),bt('L3',38,54,'L3',38),bt('R3',62,54,'R3',38)],
+ 'DualShock 4 (PS4)':[...sh('L2','L1','R2','R1'),dp(17,38),ls(38,76),rs(62,76),bt('△',83,22,'Y',52),bt('□',74,38,'X',52),bt('○',92,38,'B',52),bt('✕',83,54,'A',52),
+  bt('Share',30,10,'BACK',46),bt('Options',70,10,'START',46),bt('PS',50,46,'GUIDE',46),bt('L3',38,54,'L3',38),bt('R3',62,54,'R3',38)],
+ 'Switch Pro':[...sh('ZL','L','ZR','R'),ls(16,50,130),dp(32,78),rs(66,74,130),bt('X',86,32,'Y'),bt('Y',78,48,'X'),bt('A',94,48,'B'),bt('B',86,64,'A'),
+  bt('−',42,12,'BACK',46),bt('+',58,12,'START',46),bt('⌂',50,30,'GUIDE',44)],
+ 'Retro (SNES)':[bt('L',10,12,'LB',70),bt('R',90,12,'RB',70),dp(20,55,140),bt('X',80,30,'Y',60),bt('Y',70,52,'X',60),bt('A',90,52,'B',60),bt('B',80,74,'A',60),
+  bt('Select',42,76,'BACK',46),bt('Start',58,76,'START',46)],
+ 'PC switch (KVM)':[
+  kc('PC 1',17,15,'ctrl+alt+f1',76),kc('PC 2',39,15,'ctrl+alt+f2',76),kc('PC 3',61,15,'ctrl+alt+f3',76),kc('PC 4',83,15,'ctrl+alt+f4',76),
+  kc('Lock',17,40,'win+l',56),kc('Alt+Tab',39,40,'alt+tab',56),kc('Win',61,40,'win',56),kc('Task Mgr',83,40,'ctrl+shift+esc',56),
+  {type:'btn',label:'Left',x:28,y:84,size:84,bind:{k:'mouse',v:'left'}},{type:'btn',label:'Right',x:72,y:84,size:84,bind:{k:'mouse',v:'right'}}],
+ 'Arcade stick':[dp(20,56,160),bt('X',48,40,'X'),bt('Y',60,40,'Y'),bt('RB',72,40,'RB'),bt('LB',84,40,'LB'),bt('A',48,66,'A'),bt('B',60,66,'B'),bt('RT',72,66,'RT'),bt('LT',84,66,'LT'),
+  bt('Select',42,14,'BACK',46),bt('Start',58,14,'START',46)]});
+let saved=JSON.parse(localStorage.getItem('ri_layouts')||'{}'),layout=[],sel=null,edit=false,cur='Xbox controller',dirty=false;
+const stage=$('#stage');
+let G=+localStorage.getItem('ri_gsens')||1;
+$('#gsens').value=G;$('#gsens').oninput=e=>{G=+e.target.value;localStorage.setItem('ri_gsens',G)};
+const sensOf=c=>(c.sens||1)*G;
+const clean=()=>JSON.stringify(layout,(k,v)=>k[0]==='_'?undefined:v);
+const persist=()=>{localStorage.setItem('ri_cur',JSON.stringify({name:cur,layout:JSON.parse(clean())}));setDirty(true)};
+function setDirty(v){dirty=v;const b=$('#saveq');if(b)b.textContent=v?'Save •':'Save'}
+const persistSaved=()=>localStorage.setItem('ri_layouts',JSON.stringify(saved));
+
+function press(b,down){
+  if(b.k==='pad')send({t:'pad',b:b.v,s:down?1:0});
+  else if(b.k==='key')send({t:'key',k:b.v,s:down?'down':'up'});
+  else if(b.k==='mouse')send({t:'btn',b:b.v,s:down?1:0});
+  else if(b.k==='combo'){if(down)fire({k:b.v})}   // fires once per tap; "a b" = steps
+}
+function out(c,x,y){
+  const b=c.bind;
+  if(c.type==='stick'&&b.k==='pad'){const k=sensOf(c);let sx=x*k,sy=y*k;const m=Math.hypot(sx,sy);if(m>1){sx/=m;sy/=m}send({t:'stick',s:b.v,x:sx,y:sy});return}
+  if(b.k==='mouse')return;
+  const names=b.k==='pad'?['UP','LEFT','DOWN','RIGHT']:b.v.split(',').map(s=>s.trim());
+  const now=[y<-.4,x<-.4,y>.4,x>.4];c._d=c._d||[0,0,0,0];
+  now.forEach((on,i)=>{if(on!==!!c._d[i]){c._d[i]=on;press({k:b.k==='pad'?'pad':'key',v:names[i]},on)}});
+}
+setInterval(()=>layout.forEach(c=>{
+  if(!c._v||c.bind.k!=='mouse'||c.type!=='stick')return;
+  const s=(+c.bind.v||12)*sensOf(c);c._m=c._m||[0,0];c._m[0]+=c._v[0]*s;c._m[1]+=c._v[1]*s;
+  const ix=Math.trunc(c._m[0]),iy=Math.trunc(c._m[1]);
+  if(ix||iy){send({t:'move',dx:ix,dy:iy});c._m[0]-=ix;c._m[1]-=iy}}),16);
+
+function mk(c){
+  const el=document.createElement('div');
+  el.className='ctl '+c.type+(c===sel&&edit?' sel':'');
+  el.style.cssText=`left:${c.x}%;top:${c.y}%;width:${c.size}px;height:${c.size}px`;
+  if(c.type==='touchpad')el.style.height=c.size*.55+'px';
+  if(c.type==='btn')el.textContent=c.label;
+  else if(c.type==='stick')el.innerHTML=`<i class="knob"></i>`,el.firstChild.textContent=c.label;
+  else if(c.type==='touchpad')el.textContent=c.label;
+  else{el.innerHTML='<span style="grid-area:1/2">▲</span><span style="grid-area:2/1">◀</span><span style="grid-area:2/3">▶</span><span style="grid-area:3/2">▼</span>';}
+  if(edit&&c===sel){const h=document.createElement('i');h.className='rz';h.onpointerdown=e=>resize(e,c,el,h);el.append(h)}
+  el.onpointerdown=e=>edit?drag(e,c):c.type==='btn'?hold(e,c,el):steer(e,c,el);
+  if(c.type==='touchpad'&&!edit)tpad(c,el);
+  return el;
+}
+function render(){stage.replaceChildren(...layout.map(mk))}
+function tpad(c,el,ok){
+  const P=new Map();let t;c._m=[0,0];c._s=[0,0];
+  el.onpointerdown=e=>{if(ok&&!ok(e))return;el.setPointerCapture(e.pointerId);if(!P.size)t={t:Date.now(),d:0,n:0};
+    P.set(e.pointerId,[e.clientX,e.clientY]);t.n=Math.max(t.n,P.size);el.classList.add('on')};
+  el.onpointermove=e=>{const p=P.get(e.pointerId);if(!p)return;
+    const dx=e.clientX-p[0],dy=e.clientY-p[1];p[0]=e.clientX;p[1]=e.clientY;t.d+=Math.abs(dx)+Math.abs(dy);
+    if(P.size>1){c._s[0]+=dx/P.size;c._s[1]+=dy/P.size}else{const k=sensOf(c)*1.6;c._m[0]+=dx*k;c._m[1]+=dy*k}};
+  el.onpointerup=el.onpointercancel=e=>{if(!P.delete(e.pointerId))return;
+    if(!P.size){el.classList.remove('on');if(t&&t.d<8&&Date.now()-t.t<250)send({t:'click',b:t.n>1?'right':(c.bind.v||'left')})}};
+}
+const bgpad={bind:{v:'left'},sens:1,_m:[0,0],_s:[0,0]};   // empty background of every layout acts as a touchpad
+tpad(bgpad,stage,e=>!edit&&e.target===stage);
+setInterval(()=>[...layout,bgpad].forEach(c=>{
+  if((c.type&&c.type!=='touchpad')||!c._m)return;
+  const ix=Math.trunc(c._m[0]),iy=Math.trunc(c._m[1]);if(ix||iy){send({t:'move',dx:ix,dy:iy});c._m[0]-=ix;c._m[1]-=iy}
+  const sx=Math.trunc(c._s[0]/14),sy=Math.trunc(-c._s[1]/14);if(sx||sy){send({t:'scroll',dx:sx,dy:sy});c._s[0]-=sx*14;c._s[1]+=sy*14}
+}),16);
+function hold(e,c,el){
+  el.setPointerCapture(e.pointerId);el.classList.add('on');press(c.bind,1);
+  const up=()=>{el.classList.remove('on');press(c.bind,0)};
+  el.addEventListener('pointerup',up,{once:true});el.addEventListener('pointercancel',up,{once:true});
+}
+function steer(e,c,el){
+  el.setPointerCapture(e.pointerId);
+  const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,R=r.width/2,knob=el.querySelector('.knob');
+  const mv=ev=>{let x=(ev.clientX-cx)/R,y=(ev.clientY-cy)/R;const m=Math.hypot(x,y);if(m>1){x/=m;y/=m}
+    c._v=[x,y];if(knob)knob.style.transform=`translate(${x*R*.6}px,${y*R*.6}px)`;out(c,x,y)};
+  mv(e);el.onpointermove=mv;
+  const up=()=>{el.onpointermove=null;c._v=null;if(knob)knob.style.transform='';out(c,0,0)};
+  el.addEventListener('pointerup',up,{once:true});el.addEventListener('pointercancel',up,{once:true});
+}
+function resize(e,c,el,h){
+  e.preventDefault();e.stopPropagation();h.setPointerCapture(e.pointerId);
+  const r=stage.getBoundingClientRect(),cx=r.left+c.x/100*r.width,cy=r.top+c.y/100*r.height;
+  h.onpointermove=ev=>{const dx=Math.abs(ev.clientX-cx),dy=Math.abs(ev.clientY-cy);
+    c.size=Math.round(Math.max(40,Math.min(240,c.type==='touchpad'?2*dx:2*Math.max(dx,dy))));
+    el.style.width=c.size+'px';el.style.height=(c.type==='touchpad'?c.size*.55:c.size)+'px';
+    ['#fs2','#fs3'].forEach(i=>{const f=$(i);if(f)f.value=c.size})};
+  const up=()=>{h.onpointermove=null;persist()};
+  h.onpointerup=h.onpointercancel=up;
+}
+function drag(e,c){
+  e.preventDefault();sel=c;const r=stage.getBoundingClientRect(),cl=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const mv=ev=>{c.x=Math.round(cl((ev.clientX-r.left)/r.width*100,0,100)*2)/2;c.y=Math.round(cl((ev.clientY-r.top)/r.height*100,0,100)*2)/2;render()};
+  const up=()=>{removeEventListener('pointermove',mv);removeEventListener('pointerup',up);persist();inspect()};
+  addEventListener('pointermove',mv);addEventListener('pointerup',up);render();inspect();
+}
+
+/* inspector */
+const KINDS={btn:[['pad','Gamepad button'],['key','Keyboard key'],['combo','Key combo (ctrl+alt+f1)'],['mouse','Mouse button']],
+  stick:[['pad','Gamepad stick'],['keys','Keys (up,left,down,right)'],['mouse','Mouse movement']],
+  dpad:[['pad','Gamepad D-pad'],['keys','Keys (up,left,down,right)']],
+  touchpad:[['mouse','Mouse (drag moves, tap clicks)']]};
+function defVal(c,k){return k==='pad'?(c.type==='btn'?'A':c.type==='stick'?'L':''):k==='key'?'space':k==='combo'?'ctrl+alt+f1':k==='keys'?'w,a,s,d':c.type==='btn'||c.type==='touchpad'?'left':'14'}
+function inspect(){
+  const c=sel,el=$('#insp');
+  if(!c){el.innerHTML='<span class="m">Drag a control to move it, tap it to rename / resize / remove it. Drag the green dot to resize.</span>';return}
+  el.innerHTML=`<label>Name<input id="fl" size="10"></label><label>Size<span style="display:flex;gap:6px"><input id="fs2" type="range" min="40" max="240"><input id="fs3" type="number" min="40" max="240" step="2"></span></label>${c.type==='stick'||c.type==='touchpad'?'<label>Sensitivity<input id="fsn" type="range" min="0.3" max="3" step="0.1"></label>':''}
+   <label>Action<select id="fk"></select></label><label>Value<span id="fv"></span></label><button id="fd">Remove control</button>`;
+  $('#fl').value=c.label;$('#fl').oninput=e=>{c.label=e.target.value;render();persist()};
+  const setSize=v=>{c.size=Math.max(40,Math.min(240,Math.round(+v)||c.size));$('#fs2').value=$('#fs3').value=c.size;render();persist()};
+  $('#fs2').value=$('#fs3').value=c.size;$('#fs2').oninput=e=>setSize(e.target.value);$('#fs3').onchange=e=>setSize(e.target.value);
+  if(c.type==='stick'||c.type==='touchpad'){$('#fsn').value=c.sens||1;$('#fsn').oninput=e=>{c.sens=+e.target.value;persist()}}
+  const fk=$('#fk');KINDS[c.type].forEach(([v,l])=>fk.add(new Option(l,v)));fk.value=c.bind.k;
+  fk.onchange=()=>{c.bind={k:fk.value,v:defVal(c,fk.value)};inspect();persist()};
+  const k=c.bind.k,fv=$('#fv');let w;
+  if(k==='pad'&&c.type==='btn'){w=document.createElement('select');PADBTN.forEach(v=>w.add(new Option(v,v)))}
+  else if(k==='pad'&&c.type==='stick'){w=document.createElement('select');['L','R'].forEach(v=>w.add(new Option(v==='L'?'Left stick':'Right stick',v)))}
+  else if(k==='pad'){w=document.createElement('span');w.className='m';w.textContent='D-pad'}
+  else if(k==='mouse'&&(c.type==='btn'||c.type==='touchpad')){w=document.createElement('select');['left','right','middle'].forEach(v=>w.add(new Option(v,v)))}
+  else{w=document.createElement('input');w.size=10;if(k==='mouse')w.type='number'}
+  if('value' in w){w.value=c.bind.v;w.oninput=()=>{c.bind.v=w.value;persist()}}
+  fv.append(w);
+  $('#fd').onclick=()=>{layout=layout.filter(x=>x!==c);sel=null;render();inspect();persist()};
+}
+const add=o=>{o.x=50;o.y=50;layout.push(o);sel=o;render();inspect();persist()};
+$('#addBtn').onclick=()=>add({type:'btn',label:'Btn',size:56,bind:{k:'pad',v:'A'}});
+$('#addStick').onclick=()=>add({type:'stick',label:'S',size:120,bind:{k:'pad',v:'L'}});
+$('#addDpad').onclick=()=>add({type:'dpad',label:'',size:110,bind:{k:'pad',v:''}});
+$('#addTp').onclick=()=>add({type:'touchpad',label:'Touchpad',size:180,bind:{k:'mouse',v:'left'}});
+
+addEventListener('keydown',e=>{
+  if(!edit||!sel||!['Delete','Backspace'].includes(e.key)||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;
+  e.preventDefault();$('#fd').click()});
+
+/* layouts */
+function load(name,data){cur=name;layout=JSON.parse(JSON.stringify(data));sel=null;render();inspect();persist();setDirty(false);fillLay()}
+function fillLay(){const s=$('#lay');s.replaceChildren();
+  Object.keys(PRESETS).forEach(n=>s.add(new Option(n,n)));
+  Object.keys(saved).forEach(n=>s.add(new Option('★ '+n,n)));
+  if(![...s.options].some(o=>o.value===cur))s.add(new Option(cur+' (unsaved)',cur));
+  s.value=cur}
+$('#lay').onchange=e=>{const n=e.target.value;
+  if(dirty&&!confirm('Discard unsaved changes to this layout?')){e.target.value=cur;return}
+  load(n,PRESETS[n]||saved[n])};
+$('#edit').onclick=()=>{edit=!edit;sel=null;$('#edit').classList.toggle('on',edit);stage.classList.toggle('edit',edit);$('#panel').hidden=!edit;render();inspect()};
+$('#fs').onclick=()=>{const w=$('#stagewrap');w.requestFullscreen&&w.requestFullscreen()};
+$('#reset').onclick=()=>{
+  if(!confirm(`Reset "${cur}" to its original layout, and reset sensitivity and screen opacity?`))return;
+  if(!PRESETS[cur]&&!saved[cur])cur='Xbox controller';
+  load(cur,PRESETS[cur]||saved[cur]);                       // built-in layout, or your last saved version of it
+  G=1;$('#gsens').value=1;localStorage.setItem('ri_gsens',1);
+  GB.o=.85;$('#gbgo').value=GB.o;bgApply();
+};
+function saveAs(){
+  const n=(prompt('Layout name',PRESETS[cur]?'':cur)||'').trim();if(!n)return;
+  if(PRESETS[n]){alert('That name is used by a built-in layout. Pick another.');return}
+  if(saved[n]&&n!==cur&&!confirm(`Replace the saved layout "${n}"?`))return;
+  saved[n]=JSON.parse(clean());persistSaved();cur=n;persist();setDirty(false);fillLay()}
+$('#save').onclick=saveAs;
+$('#saveq').onclick=()=>{if(!saved[cur])return saveAs();saved[cur]=JSON.parse(clean());persistSaved();persist();setDirty(false)};
+$('#renlay').onclick=()=>{
+  if(!saved[cur]){alert('Built-in layouts can’t be renamed. Use “Save as…” to keep your own copy.');return}
+  const n=(prompt('Rename layout',cur)||'').trim();if(!n||n===cur)return;
+  if(PRESETS[n]||saved[n]){alert('A layout with that name already exists.');return}
+  saved[n]=saved[cur];delete saved[cur];persistSaved();cur=n;persist();setDirty(false);fillLay()};
+$('#del').onclick=()=>{if(saved[cur]&&confirm(`Delete "${cur}"?`)){delete saved[cur];persistSaved();load('Xbox controller',PRESETS['Xbox controller'])}
+  else if(!saved[cur])alert('Built-in layouts can’t be deleted. Edit one and save it under a new name.')};
+$('#exp').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([clean()],{type:'application/json'}));a.download=cur.replace(/\W+/g,'_')+'.json';a.click()};
+$('#imp').onclick=()=>$('#file').click();
+$('#file').onchange=async e=>{const f=e.target.files[0];if(!f)return;
+  try{const d=JSON.parse(await f.text());if(!Array.isArray(d))throw 0;const n=f.name.replace(/\.json$/,'');saved[n]=d;persistSaved();load(n,d)}
+  catch{alert('That file isn’t a layout export.')}e.target.value=''};
+
+try{const s=JSON.parse(localStorage.getItem('ri_cur')||'null');s?load(s.name,s.name==='DualShock 4 (PS4)'?s.layout.filter(c=>c.type!=='touchpad'):s.layout):load(cur,PRESETS[cur]);
+  setDirty(JSON.stringify(saved[cur]||PRESETS[cur]||[])!==clean())}catch{load(cur,PRESETS[cur])}
+/* stop the PC capturing while this page is hidden; resume when it's back */
+document.addEventListener('visibilitychange',()=>{stream();bgApply(1)});
+/* ---------- PC mode: this computer's mouse + keyboard drive the host ---------- */
+/* host screen inside the PC tab (shares the quality + monitor settings with the other views) */
+var PCV={on:true};try{Object.assign(PCV,JSON.parse(localStorage.getItem('ri_pcv')||'{}'))}catch{}
+function pcApply(restart){
+  const im=document.getElementById('pcbg'),pad=document.getElementById('pcpad');if(!im||!pad)return;
+  const show=tab==='pc'&&!document.hidden&&PCV.on;
+  im.hidden=!show;pad.classList.toggle('scr',show);
+  if(show){if(restart||!im.getAttribute('src'))im.src=surl()}else im.removeAttribute('src');
+}
+document.getElementById('pcbg').onerror=e=>{const im=e.target;if(!im.getAttribute('src'))return;setTimeout(()=>pcApply(1),4000)};
+$('#pcshow').checked=PCV.on;
+$('#pcshow').onchange=e=>{PCV.on=e.target.checked;try{localStorage.setItem('ri_pcv',JSON.stringify(PCV))}catch{}pcApply(1)};
+$$('nav button').forEach(b=>b.addEventListener('click',()=>pcApply()));
+const pcpad=$('#pcpad');let PS=+localStorage.getItem('ri_pcs')||1,pmx=0,pmy=0,pwx=0,pwy=0;
+$('#pcsens').value=PS;$('#pcsens').oninput=e=>{PS=+e.target.value;try{localStorage.setItem('ri_pcs',PS)}catch{}};
+const PCK={Minus:'-',Equal:'=',BracketLeft:'[',BracketRight:']',Semicolon:';',Quote:"'",Backquote:'`',Backslash:'\\',Comma:',',Period:'.',Slash:'/',
+  Space:'space',Enter:'enter',NumpadEnter:'enter',Tab:'tab',Backspace:'backspace',Delete:'delete',Escape:'esc',ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',
+  Home:'home',End:'end',PageUp:'page_up',PageDown:'page_down',CapsLock:'caps_lock',ShiftLeft:'shift',ShiftRight:'shift',ControlLeft:'ctrl',ControlRight:'ctrl',
+  AltLeft:'alt',AltRight:'alt',MetaLeft:'cmd',MetaRight:'cmd'};
+const pcKey=e=>{const c=e.code;return PCK[c]||(/^Key[A-Z]$/.test(c)?c[3].toLowerCase():/^Digit\d$/.test(c)?c[5]:/^F([1-9]|1[0-2])$/.test(c)?c.toLowerCase():null)};  // physical keys, so any layout works
+const pcOn=()=>document.pointerLockElement===pcpad;
+const canLock=!!pcpad.requestPointerLock;
+$('#pchint').textContent=canLock?(navigator.keyboard&&navigator.keyboard.lock?'Press Esc to release control. Fullscreen also captures shortcuts like Alt+Tab.'
+  :'Press Esc to release control. Over plain http the browser keeps keys like Win, Alt+Tab and Ctrl+W for itself.'):'This mode needs a desktop browser (pointer lock isn\'t available here).';
+pcpad.onclick=()=>{if(!canLock||pcOn())return;const r=pcpad.requestPointerLock({unadjustedMovement:true});if(r&&r.catch)r.catch(()=>pcpad.requestPointerLock())};
+document.addEventListener('pointerlockchange',()=>{
+  const on=pcOn();pcpad.classList.toggle('cap',on);pmx=pmy=pwx=pwy=0;
+  $('#pct').textContent=on?'Controlling the host PC':'Click to take control';
+  $('#pcs2').textContent=on?'Press Esc to release':"Your mouse and keyboard on this PC will drive the host PC";
+  if(!on){send({t:'releaseall'});if(navigator.keyboard&&navigator.keyboard.unlock)navigator.keyboard.unlock()}
+});
+document.addEventListener('mousemove',e=>{if(!pcOn())return;pmx+=e.movementX*PS;pmy+=e.movementY*PS;
+  const ix=Math.trunc(pmx),iy=Math.trunc(pmy);if(ix||iy){send({t:'move',dx:ix,dy:iy});pmx-=ix;pmy-=iy}});
+const PB=['left','middle','right'];
+document.addEventListener('mousedown',e=>{if(pcOn()&&PB[e.button]){e.preventDefault();send({t:'btn',b:PB[e.button],s:1})}});
+document.addEventListener('mouseup',e=>{if(pcOn()&&PB[e.button]){e.preventDefault();send({t:'btn',b:PB[e.button],s:0})}});
+document.addEventListener('contextmenu',e=>{if(pcOn())e.preventDefault()});
+document.addEventListener('wheel',e=>{if(!pcOn())return;e.preventDefault();
+  const u=e.deltaMode===0?100:e.deltaMode===1?3:1;pwy+=-e.deltaY/u;pwx+=e.deltaX/u;
+  const iy=Math.trunc(pwy),ix=Math.trunc(pwx);if(iy||ix){send({t:'scroll',dx:ix,dy:iy});pwy-=iy;pwx-=ix}},{passive:false});
+document.addEventListener('keydown',e=>{if(!pcOn())return;const k=pcKey(e);if(!k)return;e.preventDefault();if(!e.repeat)send({t:'key',k,s:'down'})},true);
+document.addEventListener('keyup',e=>{if(!pcOn())return;const k=pcKey(e);if(!k)return;e.preventDefault();send({t:'key',k,s:'up'})},true);
+$('#pcfs').onclick=()=>{const r=pcpad.requestFullscreen&&pcpad.requestFullscreen();
+  const kl=()=>navigator.keyboard&&navigator.keyboard.lock&&navigator.keyboard.lock().catch(()=>{});r&&r.then?r.then(kl).catch(()=>{}):kl()};
+$$('nav button').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.t!=='pc'&&pcOn())document.exitPointerLock()}));
+
+/* remember the last tab */
+$$('nav button').forEach(b=>b.addEventListener('click',()=>{try{localStorage.setItem('ri_tab',b.dataset.t)}catch{}}));
+try{const t=localStorage.getItem('ri_tab');if(t&&t!==tab){const b=document.querySelector(`nav button[data-t="${t}"]`);b&&b.click()}}catch{}
+</script>
+</body></html>
