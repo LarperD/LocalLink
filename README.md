@@ -1,7 +1,7 @@
 
 # LocalLink
 - Turn your Devices into **Controllers** for pc gaming locally
-- No client installation
+- No client installation // Any (Browsers required)
 
 This is my very first vibe coding project.
 I'm a remote control apps hater, and I just want to GAME !
