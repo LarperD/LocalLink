@@ -8,7 +8,7 @@
 </div>
 
 # [📢] What is it ? What does it do ? :
- - Turn your Devices into **Controllers** for pc gaming locally
+ - Turn your Devices into **Controllers** for pc gaming
  - Running Locally on Browsers
  - Fast input system
  - Comes with (useless) installer
