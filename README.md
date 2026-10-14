@@ -1,7 +1,7 @@
 
 # LocalLink | Local Remote Controller For Gamers
 
-### What is it ? What does it do ?:
+### What is it ? What does it do ? :
 - Turn your Devices into **Controllers** for pc gaming locally
 - Running Locally on Browsers
 - Fast input system
@@ -18,8 +18,9 @@ LocalLink is unlike SteamLink. The purpose is to use your device as a "**Control
 - **Windows** : Tiny 10 22H2
 ### ⚠️Firewalls :
 - Please allow `8765` by default for `tcp` port
-### To run it :
-  `python launch.py`
+<div class="alert alert-block alert-success">
+<b>To Run it :</b> python launch.py
+</div>
 ## Preview :
 <img width="933" height="741" alt="image" src="https://github.com/user-attachments/assets/fe175c40-4bd9-415e-8ce7-35295c99a35e" />
 
