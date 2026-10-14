@@ -3,7 +3,8 @@
 <div align="center">
  <h1>🔷 LocalLink 🫐 | Remote Controller For Gamers</h1> 
   <sup>Python 3.8 ++ | OpenSource Project | TUI Tools</sup>
- <img width="950" height="173" alt="image" src="https://github.com/user-attachments/assets/f55d563f-485f-4a5e-9069-adb197f2bf7e" />
+<img width="942" height="166" alt="image" src="https://github.com/user-attachments/assets/42e7224b-19c9-4db8-9aa0-bb8a3ed3fb03" />
+
 </div>
 
 # [📢] What is it ? What does it do ? :
