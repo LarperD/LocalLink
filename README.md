@@ -1,5 +1,8 @@
 
 
+
+
+
 # LocalLink
 - Turn your Devices into Controllers for pc gaming locally
 - No client installation
@@ -13,3 +16,5 @@ I'm a remote control apps hater, and I just want to GAME
   `python launch.py`
 # Preview :
 <img width="1920" height="1034" alt="image" src="https://github.com/user-attachments/assets/41924557-7a30-407f-a96f-d42af731efe0" />
+
+https://github.com/user-attachments/assets/bb592860-7365-43c3-98fc-3d2cee2b96ad
