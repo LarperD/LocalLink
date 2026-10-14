@@ -5,6 +5,8 @@
 This is my very first vibe coding project.
 I'm a remote control apps hater, and I just want to GAME
 
+## Tested on :
+- Arch linux + SwayWM
 # To run it :
   `python launch.py`
 # Preview :
