@@ -28,7 +28,7 @@ I'm a remote control hater cause' I just want to GAME !
 - Keyboard (Shortcut Maker, Live Typeing)
 - Gamepad (Multi-Layout, LayoutEditor, Background Screen,Touch Background)
 - PC (Input Passing) // PC to PC
-### [🟢] Tested on :
+### [🩵] Tested on :
 - _**Linux** : Arch linux + SwayWM // **Pipewire**_
 - _**Windows** : Tiny 10 22H2_
 ### [‼️] Firewalls :
