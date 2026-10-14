@@ -37,7 +37,7 @@ I'm a remote control hater cause' I just want to GAME !
 -  _`python launch.py`_
 
 > [!TIP]
-> You can connect Network tunneler/Portforwarding to let your friend play on your PC .
+> You can connect **Network tunneler/Portforwarding** to let your friends game on your PC .
 
 <div align="center">
 <h1>[🖼️] Preview | Screenshots & Videos</h1>
