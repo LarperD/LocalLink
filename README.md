@@ -7,8 +7,7 @@
  - Fast input system
 
 > **note** : The screen mirroring system wasn't make for real-use as the backend is too slow for gaming. // Disabling it will improve quite an input latency (I only add it for visualization.) 
-
-
+<br/>
 This is my very first **Vibe Coding** Project.
 I'm a remote control apps hater, and I just want to GAME !
 
