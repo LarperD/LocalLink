@@ -1,6 +1,6 @@
 
 # 🔷 LocalLink 🫐 | Remote Controller For Gamers
->> Python 3.8 ++ | OpenSource Project | TUI Tools
+###> Python 3.8 ++ | OpenSource Project | TUI Tools
 <img width="929" height="168" alt="image" src="https://github.com/user-attachments/assets/d649cca5-2ae2-4137-9271-65dcc397fc12" />
 
 
@@ -12,7 +12,8 @@
  - Fast input system
  - Comes with (useless) installer
 
-> **note** : The screen mirroring system wasn't make for real-use as the backend is too slow for gaming. // Disabling it will improve quite an input latency (I only add it for visualization.) 
+> [!NOTE]
+> The screen mirroring system wasn't make for real-use as the backend is too slow for gaming. // Disabling it will improve quite an input latency (I only add it for visualization.)
 <br/>
 
 This is my very first **Vibe Coding** Project.
