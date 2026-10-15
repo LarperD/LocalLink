@@ -50,3 +50,5 @@ https://github.com/user-attachments/assets/bb45a76c-d2f9-4e42-a897-034a0a526c1d
 
 <img width="921" height="114" alt="image" src="https://github.com/user-attachments/assets/146b047f-febd-46f2-8949-5db3bbde75a6" />
 </div>
+
+I did host for the "PC to PC" with a 650km away client, seems like the latency of screen mirroring is even lower than mobiles (cloudflared tunnel)
